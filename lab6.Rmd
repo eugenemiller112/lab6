@@ -19,6 +19,8 @@ The DIA managers want to know what policies they could enact to increase the cha
 
 Are more flights delayed because of the carrier, weather, NAS (National Air System, aka the air traffic controllers), security issues, or aircraft late in arriving causing delays in departures?
 
+Identifying factors that increase or decrease the probability of arrival and departure delays is an important consideration for airports managers, like the ones at DIA. It's important for managers to have their flights be as efficient and on time as possible, so customers can stick to their schedules and have a positive experience with the airport, and so that pilots and flight staff don't get behind in their work. Knowing the factors that lead to increased or decreased delays can help managers assess the situation at their airport, and could guide them in implementing policies to counteract some of these delays. 
+
 ## Team Plots
 
 ## Team Recommendation
