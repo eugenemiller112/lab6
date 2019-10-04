@@ -26,28 +26,28 @@ Are more flights delayed because of the carrier, weather, NAS (National Air Syst
 ## Individual Sections
 
 ## Eugene Miller
-Correlating late aircraft delay and departure delay
+
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 DENflights <- COflights %>%
   filter(ORIGIN == "DEN" | DEST == "DEN") %>%
   filter(!is.na(ARR_TIME))
 
 ggplot(DENflights) +
-  geom_smooth(mapping = aes(y = DEP_DELAY, x = LATE_AIRCRAFT_DELAY)) + 
-  labs(x = "Late Aircraft Delay (min)", y = "Departure Delay (min)")
+  geom_smooth(mapping = aes(y = DEP_DELAY, x = WEATHER_DELAY)) + 
+  labs(x = "Weather Delay (min)", y = "Departure Delay (min)", title = "Correlating Weather Delay and Departure Delay")
 ```
 
-If the aircraft was delayed by at least 5 minutes, what's the probability of a departure delay?
+If the weather delay was at least 5 minutes, what's the probability of a departure delay?
 ```{r}
 lateAircraft <- DENflights %>%
-  filter(LATE_AIRCRAFT_DELAY > 5)
+  filter(WEATHER_DELAY > 5)
 lateAircraftDepDelay <- lateAircraft %>%
   filter(DEP_DELAY >= 15)
 prob <- count(lateAircraftDepDelay)/count(lateAircraft)
 ```
 It is: `r prob`
 
-If a plane arrives late then it's departure was more than likely delayed.
+If a weather delay occurs then departure was more than likely delayed.
 
 What's the relationship between month and departure delay?
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
