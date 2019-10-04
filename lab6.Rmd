@@ -62,28 +62,29 @@ uniq_dest
 Albany airport's late flight percentage is 10% greater than the second highest and 14% higher than the third highest late flight percentage. Also, Newark (at second place) is 4% higher than third place, which is significant because the next couple proportions don't differ by more than 1%. This indicates that there may be a correlation between the destinations ALB and EWR and departure delays. 
 
 ```{r}
-late_aircraft_delay <- DENflights %>%
-  filter(LATE_AIRCRAFT_DELAY>0)
-ggplot(late_aircraft_delay) +
-  stat_binhex(mapping=aes(x=LATE_AIRCRAFT_DELAY, y=DEP_DELAY)) +
-  labs(title="Departure Delay vs. Late Aircraft Delay", fill="# of Planes") +
-  xlab("Late Aircraft Delay (min)") +
+carrier_delay <- DENflights %>%
+  filter(CARRIER_DELAY>0)
+ggplot(carrier_delay) +
+  stat_binhex(mapping=aes(x=CARRIER_DELAY, y=DEP_DELAY)) +
+  labs(title="Departure Delay vs. Carrier Delay", fill="# of Planes") +
+  xlab("Carrier Delay (min)") +
   ylab("Departure Delay (min)") 
   
 ```
 ```{r}
 late_total<- DENflights %>%
+    filter(!is.na(DEP_DELAY))
   summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total)
-late_aircraft <- DENflights %>%
-  filter(LATE_AIRCRAFT_DELAY >0) %>%
+late_carrier <- DENflights %>%
+  filter(CARRIER_DELAY >0) %>%
   summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total)
 ```
 
+
 Proportion of late flights from entire dataset: `r late_total$prop`.
 
-Proportion of late flights from flights with aircraft delay: `r late_aircraft$prop`.
+Proportion of late flights from flights with aircraft delay: `r late_carrier$prop`.
 
-Out of all the flights, 17% had departure delays that were 15 min or greater. If I filtered for flights with positive late aircraft delay (given aircraft delay greater than 0), that number jumps up to 93%. This suggests a correlation between late aircraft delay and delayed flights.
-
+Out of all the flights, 17% had departure delays that were 15 min or greater. If I filtered for flights with positive carrier delay (given carrier delay is greater than 0), that number jumps up to 89%. This suggests a correlation between carrier delay and delayed flights.
 
 ## Inidividual Contribution Summaries
