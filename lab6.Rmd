@@ -77,11 +77,11 @@ late_total<- DENflights %>%
 late_aircraft <- DENflights %>%
   filter(LATE_AIRCRAFT_DELAY >0) %>%
   summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total)
-late_total$prop
 ```
-```{r}
-late_aircraft$prop
-```
+
+Proportion of late flights from entire dataset: `r late_total$prop`.
+
+Proportion of late flights from flights with aircraft delay: `r late_aircraft$prop`.
 
 Out of all the flights, 17% had departure delays that were 15 min or greater. If I filtered for flights with positive late aircraft delay (given aircraft delay greater than 0), that number jumps up to 93%. This suggests a correlation between late aircraft delay and delayed flights.
 
