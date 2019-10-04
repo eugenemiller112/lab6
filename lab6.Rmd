@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ---
 title: "Lab 6: Team All Stars"
 author: "Johnny Tamanaha, Emily Archambault, Eugene Miller, Kaiyuan Fan, Jingzhi Zhang"
@@ -27,15 +26,67 @@ Are more flights delayed because of the carrier, weather, NAS (National Air Syst
 ## Individual Sections
 
 ## Eugene Miller
+Correlating late aircraft delay and departure delay
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 DENflights <- COflights %>%
   filter(ORIGIN == "DEN" | DEST == "DEN") %>%
-  mutate(ARR_DELAY_LOGICAL = (ARR_DELAY >= 15))
+  filter(!is.na(ARR_TIME))
 
 ggplot(DENflights) +
-  geom_smooth(mapping = aes(y = DEP_DELAY, x = LATE_AIRCRAFT_DELAY))
+  geom_smooth(mapping = aes(y = DEP_DELAY, x = LATE_AIRCRAFT_DELAY)) + 
+  labs(x = "Late Aircraft Delay (min)", y = "Departure Delay (min)")
 ```
-<<<<<<< HEAD
+
+If the aircraft was delayed by at least 5 minutes, what's the probability of a departure delay?
+```{r}
+lateAircraft <- DENflights %>%
+  filter(LATE_AIRCRAFT_DELAY > 5)
+lateAircraftDepDelay <- lateAircraft %>%
+  filter(DEP_DELAY >= 15)
+prob <- count(lateAircraftDepDelay)/count(lateAircraft)
+```
+It is: `r prob`
+
+If a plane arrives late then it's departure was more than likely delayed.
+
+What's the relationship between month and departure delay?
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+ggplot(DENflights) + 
+  geom_bar(mapping = aes(x = (DEP_DELAY >= 15), y = ..count../sum(..count..))) +
+  facet_wrap(~MONTH) + 
+  labs(x = "Was the plane's departure delayed?", y = "Proportion of Flights")
+```
+
+By month, whats the probability that a flight's departure is delayed?
+```{r}
+janFlights <- DENflights %>%
+  filter(MONTH == 1)
+janLate <- janFlights %>%
+  filter(DEP_DELAY >= 15)
+janProb <- count(janLate)/count(janFlights)
+
+junFlights <- DENflights %>%
+  filter(MONTH == 6)
+junLate <- junFlights %>%
+  filter(DEP_DELAY >= 15)
+junProb <- count(junLate)/count(junFlights)
+
+octFlights <- DENflights %>%
+  filter(MONTH == 10)
+octLate <- octFlights %>%
+  filter(DEP_DELAY >= 15)
+octProb <- count(octLate)/count(octFlights)
+```
+January: `r janProb`
+
+June: `r junProb`
+
+October: `r octProb`
+
+This suggest that time of year can vary the likelyhood that a departure delay occurs significantly.
+
+---
+
 ## Emily Archambault
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 DENVflights <- COflights %>% filter(ORIGIN == 'DEN' | DEST == 'DEN')
@@ -74,7 +125,7 @@ probability = `r novprob`
 The plot and probabilities suggest that the month of the year has an effect on the likelihood of a flight arriving late. Some months (such as January) have a much higher probability of having late flights than others (such as November).
 
 
-=======
+---
 
 ## Johnny Tamanaha
 ```{r}
@@ -125,98 +176,3 @@ Proportion of late flights from entire dataset: `r late_total$prop`.
 Proportion of late flights from flights with aircraft delay: `r late_aircraft$prop`.
 
 Out of all the flights, 17% had departure delays that were 15 min or greater. If I filtered for flights with positive late aircraft delay (given aircraft delay greater than 0), that number jumps up to 93%. This suggests a correlation between late aircraft delay and delayed flights.
-
->>>>>>> master
-
-=======
----
-title: "Lab 6: Team All Stars"
-author: "Johnny Tamanaha, Emily Archambault, Eugene Miller, Kaiyuan Fan, Jingzhi Zhang"
-date: "10/4/2019"
-output: html_document
----
-
-```{r, setup, message = FALSE, echo = FALSE, warning = FALSE}
-library(tidyverse)
-library(corrplot)
-library(quantreg)
-library(hexbin)
-COflights <- read_csv("https://files.osf.io/v1/resources/3z5as4pej8/providers/osfstorage/5a8ca28f57103100104584db")
-```
-
-## Overall Questions
-
-The DIA managers want to know what policies they could enact to increase the chances of on-time (or early) arrivals.
-
-Are more flights delayed because of the carrier, weather, NAS (National Air System, aka the air traffic controllers), security issues, or aircraft late in arriving causing delays in departures?
-
-## Team Plots
-
-## Team Recommendation
-
-## Individual Sections
-
-## Eugene Miller
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-DENflights <- COflights %>%
-  filter(ORIGIN == "DEN" | DEST == "DEN") %>%
-  mutate(ARR_DELAY_LOGICAL = (ARR_DELAY >= 15))
-
-ggplot(DENflights) +
-  geom_smooth(mapping = aes(y = DEP_DELAY, x = LATE_AIRCRAFT_DELAY))
-```
-
-## Johnny Tamanaha
-```{r}
-uniq_dest <- DENflights %>%
-  group_by(DEST) %>%
-  summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total) %>%
-  filter(total>=200) %>%
-  filter(rank(desc(prop)) < 10) %>%
-  arrange(desc(prop))
-ggplot(uniq_dest) +
-  geom_col(mapping=aes(x=DEST, y=prop)) +
-  labs(title="10 Highest Late Flight Proportions by Destination (originating from DEN)")+
-  xlab("Destination")+
-  ylab("Proportion of Late Flights")
-```
-```{r}
-uniq_dest <- DENflights %>%
-  group_by(DEST) %>%
-  summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total) %>%
-  filter(total>=200) %>%
-  filter(rank(desc(prop)) < 10) %>%
-  arrange(desc(prop))
-uniq_dest
-```
-
-Albany airport's late flight percentage is 10% greater than the second highest and 14% higher than the third highest late flight percentage. Also, Newark (at second place) is 4% higher than third place, which is significant because the next couple proportions don't differ by more than 1%. This indicates that there may be a correlation between the destinations ALB and EWR and departure delays. 
-
-```{r}
-carrier_delay <- DENflights %>%
-  filter(CARRIER_DELAY>0)
-ggplot(carrier_delay) +
-  stat_binhex(mapping=aes(x=CARRIER_DELAY, y=DEP_DELAY)) +
-  labs(title="Departure Delay vs. Carrier Delay", fill="# of Planes") +
-  xlab("Carrier Delay (min)") +
-  ylab("Departure Delay (min)") 
-  
-```
-```{r}
-late_total<- DENflights %>%
-    filter(!is.na(DEP_DELAY))
-  summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total)
-late_carrier <- DENflights %>%
-  filter(CARRIER_DELAY >0) %>%
-  summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total)
-```
-
-
-Proportion of late flights from entire dataset: `r late_total$prop`.
-
-Proportion of late flights from flights with aircraft delay: `r late_carrier$prop`.
-
-Out of all the flights, 17% had departure delays that were 15 min or greater. If I filtered for flights with positive carrier delay (given carrier delay is greater than 0), that number jumps up to 89%. This suggests a correlation between carrier delay and delayed flights.
-
->>>>>>> master
-## Inidividual Contribution Summaries
