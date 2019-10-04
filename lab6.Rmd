@@ -48,6 +48,31 @@ taxilate <- DENVflights %>% filter(TAXI_OUT >= 15) %>% filter(!is.na(ARR_TIME)) 
 prob <- taxiandlate/taxilate
 ```
 probability = `r prob`
+The plot and probability suggest there is a strong correlation between the length of time a plane spends taxi-ing out and the amount the arrival is delayed.
+
+##Arrival Delay vs Month
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(DENflights) + geom_boxplot(mapping = aes(group=MONTH, x = MONTH, y = ARR_DELAY)) + scale_y_continuous(limits = c(-40, 30)) + labs(x = "Months (January - December)", y = "Arrival Delay", title = "Flight Month vs Arrival Delay")
+```
+Probability of a Flight Arriving Late, Given That it was in January
+```{r}
+janlate <- DENVflights %>% filter(ARR_DELAY >= 15, MONTH == 1) %>% filter(!is.na(ARR_TIME)) %>% count()
+janflights <- DENVflights %>% filter(MONTH == 1) %>% filter(!is.na(ARR_TIME)) %>% count()
+janprob <- janlate/janflights
+```
+probability = `r janprob`
+
+Probability of a Flight Arriving Late, Given That it was in November
+```{r}
+novlate <- DENVflights %>% filter(ARR_DELAY >= 15, MONTH == 11) %>% filter(!is.na(ARR_TIME)) %>% count()
+novflights <- DENVflights %>% filter(MONTH == 11) %>% filter(!is.na(ARR_TIME)) %>% count()
+novprob <- novlate/novflights
+```
+probability = `r novprob`
+
+The plot and probabilities suggest that the month of the year has an effect on the likelihood of a flight arriving late. Some months (such as January) have a much higher probability of having late flights than others (such as November).
+
+
 =======
 
 ## Johnny Tamanaha
