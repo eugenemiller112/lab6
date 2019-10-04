@@ -34,6 +34,7 @@ DENflights <- COflights %>%
 ggplot(DENflights) +
   geom_smooth(mapping = aes(y = DEP_DELAY, x = LATE_AIRCRAFT_DELAY))
 ```
+<<<<<<< HEAD
 ## Emily Archambault
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 DENVflights <- COflights %>% filter(ORIGIN == 'DEN' | DEST == 'DEN')
@@ -47,5 +48,58 @@ taxilate <- DENVflights %>% filter(TAXI_OUT >= 15) %>% filter(!is.na(ARR_TIME)) 
 prob <- taxiandlate/taxilate
 ```
 probability = `r prob`
+=======
+
+## Johnny Tamanaha
+```{r}
+uniq_dest <- DENflights %>%
+  group_by(DEST) %>%
+  summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total) %>%
+  filter(total>=200) %>%
+  filter(rank(desc(prop)) < 10) %>%
+  arrange(desc(prop))
+ggplot(uniq_dest) +
+  geom_col(mapping=aes(x=DEST, y=prop)) +
+  labs(title="10 Highest Late Flight Proportions by Destination (originating from DEN)")+
+  xlab("Destination")+
+  ylab("Proportion of Late Flights")
+```
+```{r}
+uniq_dest <- DENflights %>%
+  group_by(DEST) %>%
+  summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total) %>%
+  filter(total>=200) %>%
+  filter(rank(desc(prop)) < 10) %>%
+  arrange(desc(prop))
+uniq_dest
+```
+
+Albany airport's late flight percentage is 10% greater than the second highest and 14% higher than the third highest late flight percentage. Also, Newark (at second place) is 4% higher than third place, which is significant because the next couple proportions don't differ by more than 1%. This indicates that there may be a correlation between the destinations ALB and EWR and departure delays. 
+
+```{r}
+late_aircraft_delay <- DENflights %>%
+  filter(LATE_AIRCRAFT_DELAY>0)
+ggplot(late_aircraft_delay) +
+  stat_binhex(mapping=aes(x=LATE_AIRCRAFT_DELAY, y=DEP_DELAY)) +
+  labs(title="Departure Delay vs. Late Aircraft Delay", fill="# of Planes") +
+  xlab("Late Aircraft Delay (min)") +
+  ylab("Departure Delay (min)") 
+  
+```
+```{r}
+late_total<- DENflights %>%
+  summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total)
+late_aircraft <- DENflights %>%
+  filter(LATE_AIRCRAFT_DELAY >0) %>%
+  summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total)
+```
+
+Proportion of late flights from entire dataset: `r late_total$prop`.
+
+Proportion of late flights from flights with aircraft delay: `r late_aircraft$prop`.
+
+Out of all the flights, 17% had departure delays that were 15 min or greater. If I filtered for flights with positive late aircraft delay (given aircraft delay greater than 0), that number jumps up to 93%. This suggests a correlation between late aircraft delay and delayed flights.
+
+>>>>>>> master
 
 ## Inidividual Contribution Summaries
