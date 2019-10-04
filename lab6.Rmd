@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 ---
 title: "Lab 6: Team All Stars"
 author: "Johnny Tamanaha, Emily Archambault, Eugene Miller, Kaiyuan Fan, Jingzhi Zhang"
@@ -178,3 +179,136 @@ Proportion of late flights from entire dataset: `r late_total$prop`.
 Proportion of late flights from flights with aircraft delay: `r late_aircraft$prop`.
 
 Out of all the flights, 17% had departure delays that were 15 min or greater. If I filtered for flights with positive late aircraft delay (given aircraft delay greater than 0), that number jumps up to 93%. This suggests a correlation between late aircraft delay and delayed flights.
+=======
+
+---
+title: "Lab 6: Team All Stars"
+author: "Johnny Tamanaha, Emily Archambault, Eugene Miller, Kaiyuan Fan, Jingzhi Zhang"
+date: "10/4/2019"
+output: html_document
+---
+
+```{r, setup, message = FALSE, echo = FALSE, warning = FALSE}
+library(tidyverse)
+library(corrplot)
+library(quantreg)
+library(hexbin)
+COflights <- read_csv("https://files.osf.io/v1/resources/3z5as4pej8/providers/osfstorage/5a8ca28f57103100104584db")
+```
+
+## Overall Questions
+
+The DIA managers want to know what policies they could enact to increase the chances of on-time (or early) arrivals.
+
+Are more flights delayed because of the carrier, weather, NAS (National Air System, aka the air traffic controllers), security issues, or aircraft late in arriving causing delays in departures?
+
+## Team Plots
+
+## Team Recommendation
+
+## Individual Sections
+
+## Eugene Miller
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+DENflights <- COflights %>%
+  filter(ORIGIN == "DEN" | DEST == "DEN") %>%
+  mutate(ARR_DELAY_LOGICAL = (ARR_DELAY >= 15))
+
+ggplot(DENflights) +
+  geom_smooth(mapping = aes(y = DEP_DELAY, x = LATE_AIRCRAFT_DELAY))
+```
+
+## Emily Archambault
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+DENVflights <- COflights %>% filter(ORIGIN == 'DEN' | DEST == 'DEN')
+ggplot(DENVflights) + geom_smooth(mapping = aes(x = TAXI_OUT, y = ARR_DELAY), se=FALSE) + 
+  labs(x = "Taxi Out Time", y = "Arrival Delay", title = "Plane Taxi Out Time vs Flight Arrival Delay")
+```
+Probability of a Flight Arriving Late, Given that it Had a Taxi Out Time >15 Mins:
+```{r}
+taxiandlate <- DENVflights %>% filter(ARR_DELAY >= 15, TAXI_OUT >= 15) %>% filter(!is.na(ARR_TIME)) %>% count()
+taxilate <- DENVflights %>% filter(TAXI_OUT >= 15) %>% filter(!is.na(ARR_TIME)) %>% count()
+prob <- taxiandlate/taxilate
+```
+probability = `r prob`
+The plot and probability suggest there is a strong correlation between the length of time a plane spends taxi-ing out and the amount the arrival is delayed.
+
+##Arrival Delay vs Month
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(DENflights) + geom_boxplot(mapping = aes(group=MONTH, x = MONTH, y = ARR_DELAY)) + scale_y_continuous(limits = c(-40, 30)) + labs(x = "Months (January - December)", y = "Arrival Delay", title = "Flight Month vs Arrival Delay")
+```
+Probability of a Flight Arriving Late, Given That it was in January
+```{r}
+janlate <- DENVflights %>% filter(ARR_DELAY >= 15, MONTH == 1) %>% filter(!is.na(ARR_TIME)) %>% count()
+janflights <- DENVflights %>% filter(MONTH == 1) %>% filter(!is.na(ARR_TIME)) %>% count()
+janprob <- janlate/janflights
+```
+probability = `r janprob`
+
+Probability of a Flight Arriving Late, Given That it was in November
+```{r}
+novlate <- DENVflights %>% filter(ARR_DELAY >= 15, MONTH == 11) %>% filter(!is.na(ARR_TIME)) %>% count()
+novflights <- DENVflights %>% filter(MONTH == 11) %>% filter(!is.na(ARR_TIME)) %>% count()
+novprob <- novlate/novflights
+```
+probability = `r novprob`
+
+The plot and probabilities suggest that the month of the year has an effect on the likelihood of a flight arriving late. Some months (such as January) have a much higher probability of having late flights than others (such as November).
+
+
+=======
+
+## Johnny Tamanaha
+```{r}
+uniq_dest <- DENflights %>%
+  group_by(DEST) %>%
+  summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total) %>%
+  filter(total>=200) %>%
+  filter(rank(desc(prop)) < 10) %>%
+  arrange(desc(prop))
+ggplot(uniq_dest) +
+  geom_col(mapping=aes(x=DEST, y=prop)) +
+  labs(title="10 Highest Late Flight Proportions by Destination (originating from DEN)")+
+  xlab("Destination")+
+  ylab("Proportion of Late Flights")
+```
+```{r}
+uniq_dest <- DENflights %>%
+  group_by(DEST) %>%
+  summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total) %>%
+  filter(total>=200) %>%
+  filter(rank(desc(prop)) < 10) %>%
+  arrange(desc(prop))
+uniq_dest
+```
+
+Albany airport's late flight percentage is 10% greater than the second highest and 14% higher than the third highest late flight percentage. Also, Newark (at second place) is 4% higher than third place, which is significant because the next couple proportions don't differ by more than 1%. This indicates that there may be a correlation between the destinations ALB and EWR and departure delays. 
+
+```{r}
+late_aircraft_delay <- DENflights %>%
+  filter(LATE_AIRCRAFT_DELAY>0)
+ggplot(late_aircraft_delay) +
+  stat_binhex(mapping=aes(x=LATE_AIRCRAFT_DELAY, y=DEP_DELAY)) +
+  labs(title="Departure Delay vs. Late Aircraft Delay", fill="# of Planes") +
+  xlab("Late Aircraft Delay (min)") +
+  ylab("Departure Delay (min)") 
+  
+```
+```{r}
+late_total<- DENflights %>%
+  summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total)
+late_aircraft <- DENflights %>%
+  filter(LATE_AIRCRAFT_DELAY >0) %>%
+  summarize(total=n(), late=sum(DEP_DELAY>=15), prop=late/total)
+```
+
+Proportion of late flights from entire dataset: `r late_total$prop`.
+
+Proportion of late flights from flights with aircraft delay: `r late_aircraft$prop`.
+
+Out of all the flights, 17% had departure delays that were 15 min or greater. If I filtered for flights with positive late aircraft delay (given aircraft delay greater than 0), that number jumps up to 93%. This suggests a correlation between late aircraft delay and delayed flights.
+
+
+
+## Inidividual Contribution Summaries
+>>>>>>> Stashed changes
