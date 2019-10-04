@@ -34,6 +34,18 @@ DENflights <- COflights %>%
 ggplot(DENflights) +
   geom_smooth(mapping = aes(y = DEP_DELAY, x = LATE_AIRCRAFT_DELAY))
 ```
-
+## Emily Archambault
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+DENVflights <- COflights %>% filter(ORIGIN == 'DEN' | DEST == 'DEN')
+ggplot(DENVflights) + geom_smooth(mapping = aes(x = TAXI_OUT, y = ARR_DELAY), se=FALSE) + 
+  labs(x = "Taxi Out Time", y = "Arrival Delay", title = "Plane Taxi Out Time vs Flight Arrival Delay")
+```
+Probability of a Flight Arriving Late, Given that it Had a Taxi Out Time >15 Mins:
+```{r}
+taxiandlate <- DENVflights %>% filter(ARR_DELAY >= 15, TAXI_OUT >= 15) %>% filter(!is.na(ARR_TIME)) %>% count()
+taxilate <- DENVflights %>% filter(TAXI_OUT >= 15) %>% filter(!is.na(ARR_TIME)) %>% count()
+prob <- taxiandlate/taxilate
+```
+probability = `r prob`
 
 ## Inidividual Contribution Summaries
