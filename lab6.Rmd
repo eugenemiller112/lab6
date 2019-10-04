@@ -1,0 +1,39 @@
+---
+title: "Lab 6: Team All Stars"
+author: "Johnny Tamanaha, Emily Archambault, Eugene Miller, Kaiyuan Fan, Jingzhi Zhang"
+date: "10/4/2019"
+output: html_document
+---
+
+```{r, setup, message = FALSE, echo = FALSE, warning = FALSE}
+library(tidyverse)
+library(corrplot)
+library(quantreg)
+library(hexbin)
+COflights <- read_csv("https://files.osf.io/v1/resources/3z5as4pej8/providers/osfstorage/5a8ca28f57103100104584db")
+```
+
+## Overall Questions
+
+The DIA managers want to know what policies they could enact to increase the chances of on-time (or early) arrivals.
+
+Are more flights delayed because of the carrier, weather, NAS (National Air System, aka the air traffic controllers), security issues, or aircraft late in arriving causing delays in departures?
+
+## Team Plots
+
+## Team Recommendation
+
+## Individual Sections
+
+## Eugene Miller
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+DENflights <- COflights %>%
+  filter(ORIGIN == "DEN" | DEST == "DEN") %>%
+  mutate(ARR_DELAY_LOGICAL = (ARR_DELAY >= 15))
+
+ggplot(DENflights) +
+  geom_smooth(mapping = aes(y = DEP_DELAY, x = LATE_AIRCRAFT_DELAY))
+```
+
+
+## Inidividual Contribution Summaries
